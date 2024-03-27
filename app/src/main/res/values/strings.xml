@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HotSpot</string>
+    <string name="title_activity_profil">ProfilActivity</string>
+    <string name="title_activity_salle_list">SalleListActivity</string>
+    <string name="title_activity_salle_detail">SalleDetailActivity</string>
+    <string name="title_activity_reservation">ReservationActivity</string>
 </resources>

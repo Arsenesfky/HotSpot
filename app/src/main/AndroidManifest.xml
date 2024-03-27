@@ -13,6 +13,26 @@
         android:theme="@style/Theme.HotSpot"
         tools:targetApi="31">
         <activity
+            android:name=".Vue.ReservationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_reservation"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
+            android:name=".Vue.SalleDetailActivity"
+            android:exported="false"
+            android:label="@string/title_activity_salle_detail"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
+            android:name=".Vue.SalleListActivity"
+            android:exported="false"
+            android:label="@string/title_activity_salle_list"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
+            android:name=".Vue.ProfilActivity"
+            android:exported="false"
+            android:label="@string/title_activity_profil"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
