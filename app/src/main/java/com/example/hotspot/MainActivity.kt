@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,6 +50,8 @@ import com.example.hotspot.VueModele.navigation.Screens
 import com.example.hotspot.VueModele.navigation.SetUpNavGraph
 import com.example.hotspot.ui.theme.HotSpotTheme
 import kotlinx.coroutines.launch
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -237,6 +240,12 @@ class MainActivity : ComponentActivity() {
                         },
                         topBar ={
                             TopAppBar(
+                                colors = TopAppBarDefaults.smallTopAppBarColors(
+                                    containerColor = Color.Transparent
+                                ),
+                                modifier = Modifier
+                                    .shadow(elevation = 0.dp)
+                                    .background(color = Color.Transparent),
                                 title = {
                                     Text(text = topbarTitle)
                                 }, navigationIcon = {
