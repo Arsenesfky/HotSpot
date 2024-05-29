@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.hotspot.Vue.Profil.ProfilScreenOnPage
+import com.example.hotspot.Vue.Profil.SallesListe
 import com.example.hotspot.ui.theme.HotSpotTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,11 +69,17 @@ fun FavorisScreen(innerPadding: PaddingValues) {
 
         }
     ) {  it
-        Column (
-            modifier = Modifier.padding(top = 40.dp)
+        Box (
+            modifier = Modifier.fillMaxSize()
         ){
-            ProfilScreenOnPage()
+            Column (
+                modifier = Modifier.padding(top = 40.dp)
+            ){
+                //ProfilScreenOnPage()
+                SallesListe()
+            }
         }
+
         // Contenu de l'écran des favoris ici
     }
 }

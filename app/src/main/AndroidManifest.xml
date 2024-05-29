@@ -18,6 +18,26 @@
             android:label="@string/title_activity_reservation"
             android:theme="@style/Theme.HotSpot" />
         <activity
+            android:name=".Vue.HomeActivity"
+            android:exported="false"
+            android:label="@string/title_activity_home"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
+            android:name=".Vue.ChatActivity"
+            android:exported="false"
+            android:label="@string/title_activity_chat"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
+            android:name=".Vue.MapsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_maps"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
+            android:name=".Vue.DetailScreenActivity"
+            android:exported="false"
+            android:label="@string/title_activity_detail_screen"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
             android:name=".Vue.SalleDetailActivity"
             android:exported="false"
             android:label="@string/title_activity_salle_detail"

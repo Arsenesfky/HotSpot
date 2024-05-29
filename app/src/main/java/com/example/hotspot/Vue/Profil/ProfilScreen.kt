@@ -1,6 +1,12 @@
 package com.example.hotspot.Vue.Profil
 
+import android.content.ContentValues.TAG
+import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.preference.PreferenceManager
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +39,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +51,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,9 +63,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.hotspot.R
-import com.example.hotspot.Modele.Salles.ItemDetailsSalles
+import com.example.hotspot.Vue.DetailScreenActivity
+import com.example.hotspot.Vue.ReservationActivity
 import com.example.hotspot.VueModele.navigation.Screens
+import com.example.hotspot.VueModele.navigation.startDetailScreenActivity
 import com.example.hotspot.ui.theme.HotSpotTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -64,13 +78,41 @@ import java.net.URL
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilScreen(innerPadding: PaddingValues) {
-    val userProfile = remember { getDummyUserProfile() } // Obtenez les données du profil de l'utilisateur
+    val context = LocalContext.current
+    //val userProfile = remember { getDummyUserProfile() } // Obtenez les données du profil de l'utilisateur
+    val firestore = FirebaseFirestore.getInstance()
+    val userCollection = firestore.collection("users")
 
+    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(LocalContext.current)
+    val uid = sharedPreferences.getString("user_uid", "")
+
+    val userProfile = remember { mutableStateOf(UserProfile("", "")) }
+
+    if (!uid.isNullOrEmpty()) {
+        userCollection.document(uid).get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val nom = documentSnapshot.getString("nom") ?: ""
+                val prenom = documentSnapshot.getString("prenom") ?: ""
+                Toast.makeText(context, "Connexion réussie", Toast.LENGTH_SHORT).show()
+                userProfile.value = UserProfile(nom, prenom)
+            } else {
+                Toast.makeText(context, "Document introuvable $uid", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener { exception ->
+            Toast.makeText(context, "Erreur : ${exception.message}", Toast.LENGTH_SHORT).show()
+        }
+    } else {
+        Toast.makeText(context, "UID non disponible", Toast.LENGTH_SHORT).show()
+    }
     Scaffold(
         modifier = Modifier.padding(bottom = 40.dp),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* Action when FAB is clicked */ },
+                onClick = {
+                    val intent = Intent(context, ReservationActivity::class.java)
+                    intent.putExtra("UidUser", uid)
+                    context.startActivity(intent)
+                },
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(Icons.Default.ShoppingCart, contentDescription = "Modifier")
@@ -93,27 +135,53 @@ fun ProfilScreen(innerPadding: PaddingValues) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = userProfile.name,
+                    text = userProfile.value.name +" "+ userProfile.value.email,
                     style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = userProfile.email,
+                    text = userProfile.value.email,
                     style = TextStyle(fontSize = 16.sp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = "Salles déjà réservées")
 
-                ProfilScreenOnPage()
+                //ProfilScreenOnPage()
+                SallesListe()
 
 
             }
         }
 
     }
+}
+
+@Composable
+fun ProfilScreen2(innerPadding: PaddingValues) {
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+
+    // Récupérer les informations de l'utilisateur à partir de Firestore
+    val firestore = FirebaseFirestore.getInstance()
+    val userCollection = firestore.collection("users")
+    val userProfile = remember { mutableStateOf(UserProfile("", "")) }
+
+    LaunchedEffect(currentUser) {
+        currentUser?.uid?.let { uid ->
+            userCollection.document(uid).get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val name = documentSnapshot.getString("nom") ?: ""
+                    val email = documentSnapshot.getString("prenom") ?: ""
+                    userProfile.value = UserProfile(name, email)
+                }
+            }
+        }
+    }
+
+    // Reste du code de la fonction ProfilScreen...
 }
 
 data class UserProfile(val name: String, val email: String)
@@ -160,10 +228,95 @@ fun OutlinedImage(
 }
 
 
+@Composable
+fun SallesListe() {
+    val context = LocalContext.current
+    Surface(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 50.dp)) {
+        val salles = remember { mutableStateListOf<String>() }
+
+        // Récupération des données depuis Firebase Firestore
+        FirebaseFirestore.getInstance().collection("salles")
+            .get()
+            .addOnSuccessListener { documents ->
+                // Vérifier si des documents ont été récupérés
+                if (documents.isEmpty) {
+                    // Afficher un message si aucun document n'a été récupéré
+                    println("eeeeeeeeeeeeeegffggsfgssssssss")
+                } else {
+                    // Si des documents ont été récupérés, itérer sur chaque document
+                    documents.forEach { document ->
+                        val location = document.getString("location_") ?: ""
+                        val placesAssise = document.getLong("places_assise")?.toInt() ?: 0
+                        val nom = document.getString("nom") ?: ""
+
+                        // Ajouter les détails de la salle à la liste
+                        val salleDetails = "$nom"
+                        salles.add(salleDetails)
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Gestion des erreurs
+                Log.e(TAG, "Erreur lors de la récupération des données depuis Firebase Firestore", exception)
+            }
+
+        // Affichage de la liste des salles
+        LazyColumn(contentPadding = PaddingValues(12.dp)) {
+            items(salles) { salleDetails ->
+                // Affichage des détails de la salle
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 5.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    elevation = cardElevation(4.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                            .clickable(onClick = {
+                                val intent = Intent(context, DetailScreenActivity::class.java)
+                                intent.putExtra("nomDeSalle", salleDetails)
+                                context.startActivity(intent)
+                            }),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.test),
+                                contentDescription = null,
+                                modifier = Modifier.size(50.dp)
+                            )
+                            Column {
+                                Text(
+                                    salleDetails,
+                                    color = Color.Black,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(text = "Voir Détails")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun ProfilScreenContent(salles: List<Salle>, onItemClick: (Salle) -> Unit) {
-    Surface(modifier = Modifier.padding(top = 50.dp)) {
+    Surface(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 50.dp)) {
         LazyColumn(
             contentPadding = PaddingValues(12.dp)
         ) {
@@ -178,14 +331,16 @@ fun ProfilScreenContent(salles: List<Salle>, onItemClick: (Salle) -> Unit) {
                     elevation = cardElevation(4.dp),
 
                 ) {
-                    CustomItemSalles(salle = salles) {
+                    /*CustomItemSalles(salle = salles) {
                         onItemClick(salles)
-                    }
+                    }*/
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 fun ProfilScreenOnPage() {
@@ -198,17 +353,14 @@ fun ProfilScreenOnPage() {
     ) {
         composable(Screens.Profil.route) {
             ProfilScreenContent(getAllDataSalles) { salle ->
-                navController.navigate("itemDetails/${salle.id}")
+                // Utiliser la route de DetailScreenActivity
+                navController.navigate(Screens.Detail.route)
             }
         }
-        composable("itemDetails/{itemId}") { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getInt("itemId")
-            itemId?.let { id ->
-                val salle = getAllDataSalles.firstOrNull { it.id == id }
-                salle?.let {
-                    ItemDetailsSalles(item = it)
-                }
-            }
+        composable(Screens.Detail.route) {
+            // Vous pouvez insérer le contenu de DetailScreenActivity ici si nécessaire
+            // ou vous pouvez simplement lancer l'activité directement depuis cette composable.
+           startDetailScreenActivity(context = LocalContext.current)
         }
     }
 }
@@ -218,39 +370,37 @@ fun ProfilScreenOnPage() {
 
 
 @Composable
-fun CustomItemSalles(salle: Salle, onItemClick: () -> Unit) {
-    Column {
+fun CustomItemSalles(location_: String,nom: String,placesAssise : Int, onItemClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)
+            .clickable(onClick = onItemClick),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         Row(
-            modifier = Modifier
-                .background(Color.White)
-                .fillMaxWidth()
-                .padding(24.dp)
-                .clickable(onClick = onItemClick),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Image(
-                painter = painterResource(salle.image),
+                painter = painterResource(id = R.drawable.test),
                 contentDescription = null,
                 modifier = Modifier.size(50.dp)
             )
             Column {
-
-
                 Text(
-                    text = salle.name,
+                    text = nom,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(text = "Voir Detail")
+                Text(text = "Voir Détails")
             }
-
         }
-
     }
-
 }
+
+
 
 
 data class Salle(

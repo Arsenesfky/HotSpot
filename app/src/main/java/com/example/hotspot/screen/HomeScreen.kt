@@ -45,50 +45,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@Composable
-fun HomeScreenContent(persons: List<Person>, onItemClick: (Person) -> Unit) {
-    Surface(modifier = Modifier.padding(top = 50.dp)) {
-        LazyColumn(
-            contentPadding = PaddingValues(12.dp)
-        ) {
-            items(items = persons) { person ->
-                CustomItem(person = person) {
-                    onItemClick(person)
-                }
-                Spacer(modifier = Modifier.height(5.dp))
-            }
-        }
-    }
-}
-/*
-@Composable
-fun HomeScreen(innerPadding: PaddingValues) {
-    val personRepository = PersonRepository()
-    val getAllData = personRepository.getAllData()
 
-    val navController = rememberNavController()
-
-    NavHost(
-        navController = navController,
-        startDestination = Screens.Home.route
-    ) {
-        composable(Screens.Home.route) {
-            HomeScreenContent(getAllData) { person ->
-                navController.navigate("itemDetails/${person.id}")
-            }
-        }
-        composable("itemDetails/{itemId}") { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getInt("itemId")
-            itemId?.let { id ->
-                val person = getAllData.firstOrNull { it.id == id }
-                person?.let {
-                    ItemDetailsScreen(item = it)
-                }
-            }
-        }
-    }
-}
-*/
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,122 +62,51 @@ fun HomeScreen(innerPadding: PaddingValues){
         modifier = Modifier
             .padding(top = 30.dp)
     ){it
-        Column(
+        Box(
             modifier = Modifier
-                .padding(all = 10.dp),
-            verticalArrangement = Arrangement.Top,
-        ) {
-            Row(
+                .fillMaxSize()
+        ){
+            Column(
                 modifier = Modifier
-                    .height(height = 350.dp),
+                    .padding(all = 10.dp),
+                verticalArrangement = Arrangement.Top,
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(height = 350.dp),
                     //.horizontalScroll(rememberScrollState())
                     //.padding(10.dp),
-                content = {
-                    ImageBoxExample()
-                    // Ajoutez d'autres images ici
-                }
-            )
-            Spacer(modifier = Modifier.height(height = 10.dp))
-            Text(text = "Categorie")
-            LazyRow() {
-                items(categories.chunked(2)) { rowCategories ->
-                    Row(Modifier.fillMaxWidth()) {
-                        rowCategories.forEach { category ->
-                            CategoryItem(category)
+                    content = {
+                        ImageBoxExample()
+                        // Ajoutez d'autres images ici
+                    }
+                )
+                Spacer(modifier = Modifier.height(height = 10.dp))
+                Text(text = "Categorie")
+                LazyRow() {
+                    items(categories.chunked(2)) { rowCategories ->
+                        Row(Modifier.fillMaxWidth()) {
+                            rowCategories.forEach { category ->
+                                CategoryItem(category)
+                            }
                         }
                     }
                 }
-            }
-            ProfilScreenOnPage()
+                //ProfilScreenOnPage()
 
+            }
         }
 
+
     }
 }
 
 
 
-@Composable
-fun ItemDetailsScreen(item: Person) {
-    Surface(modifier = Modifier.padding(top = 70.dp)){
-        Text(text = "Page de : ${item.firstName} ${item.lastName} id : ${item.id}")
 
-    }
-    // Affiche les détails de l'élément spécifié
-}
 
-@Composable
-fun CustomItem(person: Person, onItemClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .background(Color.LightGray)
-            .fillMaxWidth()
-            .padding(24.dp)
-            .clickable(onClick = onItemClick),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = "${person.age}",
-            color = Color.Black,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = person.firstName,
-            color = Color.Black,
-            fontWeight = FontWeight.Normal
-        )
-        Text(
-            text = person.lastName,
-            color = Color.Black,
-            fontWeight = FontWeight.Normal
-        )
-    }
-}
 
-data class Person(
-    val id: Int,
-    val firstName: String,
-    val lastName: String,
-    val age: Int
-)
 
-class PersonRepository {
-    fun getAllData(): List<Person> {
-        return listOf(
-            Person(
-                id = 0,
-                firstName = "Sefu",
-                lastName = "Arsene",
-                age = 20
-            ),
-            Person(
-                id = 1,
-                firstName = "Martial",
-                lastName = "Katung",
-                age = 21
-            ),
-            Person(
-                id = 2,
-                firstName = "Tegra",
-                lastName = "Kamanda",
-                age = 22
-            ),
-            Person(
-                id = 3,
-                firstName = "Mike",
-                lastName = "Mwenda",
-                age = 23
-            ),
-            Person(
-                id = 4,
-                firstName = "Nsenga",
-                lastName = "Roethgen",
-                age = 24
-            )
-        )
-    }
-}
 @Composable
 fun ImageBoxExample() {
     Box(

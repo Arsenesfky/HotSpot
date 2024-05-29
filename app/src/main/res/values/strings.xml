@@ -4,4 +4,8 @@
     <string name="title_activity_salle_list">SalleListActivity</string>
     <string name="title_activity_salle_detail">SalleDetailActivity</string>
     <string name="title_activity_reservation">ReservationActivity</string>
+    <string name="title_activity_detail_screen">DetailScreenActivity</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_home">HomeActivity</string>
 </resources>
