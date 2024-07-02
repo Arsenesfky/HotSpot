@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447693815116",
+    "project_id": "hotspot-24868",
+    "storage_bucket": "hotspot-24868.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447693815116:android:5babe2d855966e1e3823e9",
+        "android_client_info": {
+          "package_name": "com.example.hotspot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf8xf3EOM0cH-6AAEKqot-8ISnMzoTSpk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
