@@ -6,4 +6,5 @@ sealed class Screens (var route : String) {
     object Favoris : Screens("Favoris")
     object Detail : Screens("Detail")
     object AfterLogin : Screens("AfterLogin")
+    object PaymentMethode : Screens("PaymentMethode")
 }

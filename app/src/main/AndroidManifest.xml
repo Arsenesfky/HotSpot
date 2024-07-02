@@ -13,6 +13,11 @@
         android:theme="@style/Theme.HotSpot"
         tools:targetApi="31">
         <activity
+            android:name=".Vue.CreditCardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_credit_card"
+            android:theme="@style/Theme.HotSpot" />
+        <activity
             android:name=".Vue.ReservationActivity"
             android:exported="false"
             android:label="@string/title_activity_reservation"

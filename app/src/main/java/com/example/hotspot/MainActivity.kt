@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
@@ -67,7 +68,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.hotspot.Vue.HomeActivity
 import com.example.hotspot.screen.LoginPage
 import com.google.firebase.Firebase
-import com.google.firebase.appcheck.appCheck
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -137,6 +137,12 @@ fun afterLogin(){
             route = Screens.Favoris.route,
             selectedIcon = Icons.Filled.Favorite,
             unselectedIcon = Icons.Filled.Favorite,
+        ),
+        NavigationItem(
+            title = "Payment Methode",
+            route = Screens.PaymentMethode.route,
+            selectedIcon = Icons.Filled.MailOutline,
+            unselectedIcon = Icons.Filled.MailOutline,
         ),
 
         )

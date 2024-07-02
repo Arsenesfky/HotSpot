@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat.startActivities
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.hotspot.Vue.CreditCardActivity
 import com.example.hotspot.Vue.DetailScreenActivity
 import com.example.hotspot.Vue.Favoris.FavorisScreen
 import com.example.hotspot.screen.HomeScreen
@@ -42,6 +43,9 @@ fun SetUpNavGraph(
         composable(Screens.AfterLogin.route) {
             afterLogin()
         }
+        composable(Screens.PaymentMethode.route){
+            startPaymentMethodeActivity(context)
+        }
     }
 }
 
@@ -50,4 +54,9 @@ fun startDetailScreenActivity(context: Context) {
     val intent = Intent(context, DetailScreenActivity::class.java)
     context.startActivity(intent)
 
+}
+
+fun startPaymentMethodeActivity(context: Context){
+    val intent = Intent(context, CreditCardActivity::class.java)
+    context.startActivity(intent)
 }

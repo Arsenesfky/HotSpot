@@ -30,19 +30,25 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,8 +74,10 @@ import com.example.hotspot.Vue.ReservationActivity
 import com.example.hotspot.VueModele.navigation.Screens
 import com.example.hotspot.VueModele.navigation.startDetailScreenActivity
 import com.example.hotspot.ui.theme.HotSpotTheme
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -150,14 +158,117 @@ fun ProfilScreen(innerPadding: PaddingValues) {
                 Text(text = "Salles déjà réservées")
 
                 //ProfilScreenOnPage()
-                SallesListe()
-
+                //SallesListe()
+                if (uid != null) {
+                    ReservationList(userId = uid)
+                }
 
             }
         }
 
     }
 }
+fun getReservations(userId: String, onSuccess: (List<Map<String, String>>) -> Unit, onFailure: () -> Unit) {
+    val firestore = Firebase.firestore
+    val docRef = firestore.collection("users").document(userId)
+    docRef.get()
+        .addOnSuccessListener { document ->
+            if (document.exists()) {
+                val reservations = document.get("reservations") as? List<Map<String, String>>
+                if (reservations != null) {
+                    onSuccess(reservations)
+                } else {
+                    onFailure()
+                }
+            } else {
+                onFailure()
+            }
+        }
+        .addOnFailureListener {
+            onFailure()
+        }
+}
+
+
+@Composable
+fun ReservationList(userId: String) {
+    val context = LocalContext.current
+    val reservations = remember { mutableStateListOf<Map<String, String>>() }
+    var selectedReservation by remember { mutableStateOf<Map<String, String>?>(null) }
+
+    // Load reservations from Firestore
+    LaunchedEffect(userId) {
+        getReservations(
+            userId = userId,
+            onSuccess = { list ->
+                reservations.clear()
+                reservations.addAll(list)
+            },
+            onFailure = {
+                Toast.makeText(context, "Failed to load reservations", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        items(reservations) { reservation ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 5.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clickable { selectedReservation = reservation },
+                elevation = CardDefaults.cardElevation(4.dp),
+            ) {
+                Text(
+                    text = reservation["item"] ?: "Unknown",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+
+    selectedReservation?.let { reservation ->
+        showReservationDetailsDialog(
+            reservation = reservation,
+            onDismiss = { selectedReservation = null }
+        )
+    }
+}
+
+@Composable
+fun showReservationDetailsDialog(
+    reservation: Map<String, String>,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text(text = "Détails de la réservation", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Nom de Salle: ${reservation["item"]}")
+                Text("Date: ${reservation["date"]}")
+                Text("Nombre de personnes: ${reservation["personCount"]}")
+                Text("Prix total: ${reservation["totalPrice"]} $")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onDismiss() }
+            ) {
+                Text("Fermer")
+            }
+        }
+    )
+}
+
+
 
 @Composable
 fun ProfilScreen2(innerPadding: PaddingValues) {
